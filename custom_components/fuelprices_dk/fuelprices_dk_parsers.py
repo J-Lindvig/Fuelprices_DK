@@ -146,11 +146,16 @@ class fuelParser:
 
     def _f24_q8(self, url, products):
         now = datetime.now()
+        headers = {"Content-Type": "application/json"}
         payload = {}
-        payload["FuelsIdList"] = list(products.values())
         payload["FromDate"] = int((now - timedelta(days=31)).timestamp())
         payload["ToDate"] = int(now.timestamp())
-        headers = {"Content-Type": "application/json"}
+        payload["FuelsIdList"] = []
+        index = 0
+        for productDict in products.values():
+            productDict["Index"] = index
+            payload["FuelsIdList"].append(productDict)
+            index = index + 1
 
         r = self._session.post(url, headers=headers, data=str(payload))
         if r.status_code == 200:

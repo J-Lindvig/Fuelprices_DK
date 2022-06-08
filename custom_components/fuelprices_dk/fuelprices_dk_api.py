@@ -66,7 +66,6 @@ FUEL_COMPANIES = {
         "products": {
             OCTANE_95: {"name": "Benzin 95"},
             OCTANE_95_PLUS: {"name": "UPGRADE 95"},
-            OCTANE_100: {"name": "Benzin 98 E5"},
             DIESEL: {"name": "Diesel"},
         },
     },
@@ -74,36 +73,20 @@ FUEL_COMPANIES = {
         "name": "Q8",
         "url": "https://www.q8.dk/-/api/PriceViewProduct/GetPriceViewProducts",
         "products": {
-            OCTANE_95: {"name": "GoEasy 95 E10", "ProductCode": 22251, "Index": 0},
-            OCTANE_95_PLUS: {
-                "name": "GoEasy 95 Extra E5",
-                "ProductCode": 22601,
-                "Index": 1,
-            },
-            DIESEL: {"name": "GoEasy Diesel", "ProductCode": 24451, "Index": 2},
-            DIESEL_PLUS: {
-                "name": "GoEasy Diesel Extra",
-                "ProductCode": 24337,
-                "Index": 3,
-            },
+            OCTANE_95: {"name": "GoEasy 95 E10", "ProductCode": 22251},
+            OCTANE_95_PLUS: {"name": "GoEasy 95 Extra E5", "ProductCode": 22601},
+            DIESEL: {"name": "GoEasy Diesel", "ProductCode": 24451},
+            DIESEL_PLUS: {"name": "GoEasy Diesel Extra", "ProductCode": 24337},
         },
     },
     "f24": {
         "name": "F24",
         "url": "https://www.f24.dk/-/api/PriceViewProduct/GetPriceViewProducts",
         "products": {
-            OCTANE_95: {"name": "GoEasy 95 E10", "ProductCode": 22253, "Index": 0},
-            OCTANE_95_PLUS: {
-                "name": "GoEasy 95 Extra E5",
-                "ProductCode": 22603,
-                "Index": 1,
-            },
-            DIESEL: {"name": "GoEasy Diesel", "ProductCode": 24453, "Index": 2},
-            DIESEL_PLUS: {
-                "name": "GoEasy Diesel Extra",
-                "ProductCode": 24338,
-                "Index": 3,
-            },
+            OCTANE_95: {"name": "GoEasy 95 E10", "ProductCode": 22253},
+            OCTANE_95_PLUS: {"name": "GoEasy 95 Extra E5", "ProductCode": 22603},
+            DIESEL: {"name": "GoEasy Diesel", "ProductCode": 24453},
+            DIESEL_PLUS: {"name": "GoEasy Diesel Extra", "ProductCode": 24338},
         },
     },
 }
