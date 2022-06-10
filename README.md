@@ -1,7 +1,14 @@
-# Fuelprices_DK
+# Fuelprices DK
 ## Introduction
 With Fuelprices_DK it is possible to track fuelprices in Denmark.
 
+## Installation
+### Custom integration in HACS
+https://hacs.xyz/docs/faq/custom_repositories
+### HACS approved integration
+Coming soon....!!
+
+## Configuration
 In the default configuration it will track the following fueltypes:
 - Octane 95
 - Octane 95+ (additives)
