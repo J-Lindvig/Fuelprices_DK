@@ -6,7 +6,9 @@ from datetime import datetime, timedelta
 import requests
 import shutil
 import subprocess
+import pytz
 
+DK_TZ = pytz.timezone("Europe/Copenhagen")
 from .const import (
     PATH,
 )
@@ -171,6 +173,7 @@ class fuelParser:
 
         # Send our payload and headers to the URL as a POST
         r = self._session.post(url, headers=headers, data=str(payload))
+        _LOGGER.debug("URL: " + url + " [" + str(r.status_code) + "]")
         if r.status_code == 200:
             # Loop through the products
             for productKey, productDict in products.items():
@@ -182,10 +185,13 @@ class fuelParser:
                 products[productKey]["price"] = self._cleanPrice(
                     json_product["PriceInclVATInclTax"]
                 )
+                dt = datetime.now(DK_TZ)
+                products[productKey]["lastUpdate"] = dt.strftime("%d/%m/%Y, %H:%M:%S")
             return products
 
     def _get_website(self, url):
         r = self._session.get(url)
+        _LOGGER.debug("URL: " + url + " [" + str(r.status_code) + "]")
         if r.status_code != 200:
             return r.status_code
         return r
@@ -230,6 +236,8 @@ class fuelParser:
 
     def _addPriceToProduct(self, productDict, productPrice):
         productDict.update({"price": self._cleanPrice(productPrice)})
+        dt = datetime.now(DK_TZ)
+        productDict.update({"lastUpdate": dt.strftime("%d/%m/%Y, %H:%M:%S")})
         return productDict
 
     def _cleanProductName(self, productName):

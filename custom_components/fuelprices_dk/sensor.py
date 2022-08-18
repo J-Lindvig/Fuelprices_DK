@@ -11,7 +11,7 @@ from .const import (
     UPDATE_INTERVAL,
 )
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -88,7 +88,8 @@ class FuelPriceSensor(SensorEntity):
         attr["product_name"] = self._productName
         attr["product_type"] = self._productKey
         attr["price_type"] = self._fuelCompany.getPriceType()
-        attr["last_update"] = self._fuelCompany.getLastUpdate()
+        # attr["last_update"] = self._fuelCompany.getLastUpdate()
+        attr["last_update"] = self._fuelCompany.getProductLastUpdate(self._productKey)
         attr[ATTR_ATTRIBUTION] = CREDITS
         return attr
 

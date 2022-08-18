@@ -149,8 +149,6 @@ class fuelprices:
     def refresh(self):
         for company in self.getCompanies():
             company.refreshPrices()
-        # for companyKey in self.getCompanyKeys():
-        # 	self._fuelCompanies[companyKey].refreshPrices()
 
     def getCompany(self, companyKey):
         if self._companyExists(companyKey):
@@ -186,7 +184,6 @@ class fuelCompany:
         self._products = products  # Dictionary with products and prices
         self._parser = parser  # Instance of the parser module
         self._priceType = DEFAULT_PRICE_TYPE  # Default type of prices
-        self._lastUpdate = int(datetime.now().timestamp())  # Current timestamp
 
     def getName(self):
         return self._name
@@ -203,8 +200,6 @@ class fuelCompany:
         self._products = getattr(self._parser, self._key)(self._url, self._products)
         # If the Key 'priceType' is present, extract it from the dict, else use DEFAULT_PRICE_TYPE
         self._priceType = self._products.pop("priceType", DEFAULT_PRICE_TYPE)
-        # Update the timeetamp
-        self._lastUpdate = int(datetime.now().timestamp())
 
     def getProductsKeys(self):
         return self._products.keys()
@@ -215,8 +210,8 @@ class fuelCompany:
     def getProductPrice(self, productKey):
         return self._products[productKey]["price"]
 
+    def getProductLastUpdate(self, productKey):
+        return self._products[productKey]["lastUpdate"]
+
     def getPriceType(self):
         return self._priceType
-
-    def getLastUpdate(self):
-        return self._lastUpdate
