@@ -62,7 +62,7 @@ FUEL_COMPANIES = {
     },
     "ok": {
         "name": "OK",
-        "url": "https://www.ok.dk/offentlig/produkter/braendstof/priser",
+        "url": "https://www.ok.dk/offentlig/produkter/braendstof/priser/vejledende-standerpriser",
         "products": {
             OCTANE_95: {"name": "Blyfri 95"},
             OCTANE_100: {"name": "Oktan 100"},
