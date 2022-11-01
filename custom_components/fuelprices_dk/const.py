@@ -9,4 +9,5 @@ CREDITS = [
 ]
 DOMAIN = "fuelprices_dk"
 PATH = "./custom_components/" + DOMAIN + "/"
-UPDATE_INTERVAL = 60
+#UPDATE_INTERVAL = 60
+UPDATE_INTERVAL = 180
