@@ -9,7 +9,9 @@ from .const import (
     CONF_CLIENT,
     CONF_FUELCOMPANIES,
     CONF_FUELTYPES,
+    CONF_UPDATE_INTERVAL,
     CONF_PLATFORM,
+    UPDATE_INTERVAL,
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -26,6 +28,7 @@ async def async_setup(hass, config):
     # Extract companies and fuueltypes from the config, defult to empty list
     fuelCompanies = conf.get(CONF_FUELCOMPANIES, [])
     fuelTypes = conf.get(CONF_FUELTYPES, [])
+    updateInterval = conf.get(CONF_UPDATE_INTERVAL, UPDATE_INTERVAL)
 
     _LOGGER.debug("fuelCompanies: " + str(fuelCompanies))
     _LOGGER.debug("fuelTypes: " + str(fuelTypes))
@@ -35,7 +38,7 @@ async def async_setup(hass, config):
     # Load the data using the config
     fuelPrices.loadCompanies(fuelCompanies, fuelTypes)
     # Store the client in the hass data stack
-    hass.data[DOMAIN] = {CONF_CLIENT: fuelPrices}
+    hass.data[DOMAIN] = {CONF_CLIENT: fuelPrices, CONF_UPDATE_INTERVAL: updateInterval}
 
     # Add sensors
     hass.async_create_task(

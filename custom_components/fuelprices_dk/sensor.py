@@ -1,17 +1,18 @@
 from __future__ import annotations
 
 import logging
+import time
 
 from homeassistant.const import DEVICE_CLASS_MONETARY, ATTR_ATTRIBUTION
 from .const import (
     CONF_CLIENT,
+    CONF_UPDATE_INTERVAL,
     CONF_PLATFORM,
     CREDITS,
     DOMAIN,
-    UPDATE_INTERVAL,
 )
 
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -22,12 +23,17 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
 
+    updateInterval = hass.data[DOMAIN][CONF_UPDATE_INTERVAL]
+
     # Define a update function
     async def async_update_data():
         # Retrieve the client stored in the hass data stack
         fuelPrices = hass.data[DOMAIN][CONF_CLIENT]
-        # Call, and wait for it to finish, the function with the refresh procedure
-        await hass.async_add_executor_job(fuelPrices.refresh)
+        # Loop through the fuelcompanies and call the refresh function
+        # Sleep for 3 seconds
+        for company in fuelPrices.getCompanies():
+            await hass.async_add_executor_job(company.refreshPrices)
+            time.sleep(3)
 
     # Create a coordinator
     coordinator = DataUpdateCoordinator(
@@ -35,7 +41,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         _LOGGER,
         name=CONF_PLATFORM,
         update_method=async_update_data,
-        update_interval=timedelta(minutes=UPDATE_INTERVAL),
+        update_interval=timedelta(minutes=updateInterval),
     )
 
     # Immediate refresh

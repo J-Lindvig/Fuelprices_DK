@@ -190,7 +190,7 @@ class fuelParser:
             return products
 
     def _get_website(self, url):
-        r = self._session.get(url)
+        r = self._session.get(url, timeout=5)
         _LOGGER.debug("URL: " + url + " [" + str(r.status_code) + "]")
         if r.status_code != 200:
             return r.status_code
