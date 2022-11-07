@@ -37,6 +37,8 @@ From these fuelcompanies:
 ```yaml
 fuelprices_dk:
   # Optional entries
+  # Bypass the default update interval (60 minutes)
+  update_interval: 300
   companies:
   # possible values are: circlek, f24, goon, ingo, oil, ok, q8 and shell
     - ok
