@@ -22,6 +22,7 @@ In the default configuration it will track the following fueltypes:
 - Octane 100
 - Diesel
 - Diesel+ (additives)
+- Electric
 
 From these fuelcompanies:
 - Circle K
@@ -44,7 +45,7 @@ fuelprices_dk:
     - ok
     - shell
   fueltypes:
-  # Possible values are: oktan 95, oktan 95+, oktan 100, diesel, diesel+
+  # Possible values are: oktan 95, oktan 95+, oktan 100, diesel, diesel+ and electric
     - oktan 95
     - diesel
 ```
