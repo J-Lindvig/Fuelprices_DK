@@ -10,18 +10,20 @@ _LOGGER = logging.getLogger(__name__)
 DEFAULT_PRICE_TYPE = "pump"
 DIESEL = "diesel"
 DIESEL_PLUS = "diesel+"
+ELECTRIC = "electric"
 OCTANE_95 = "oktan 95"
 OCTANE_95_PLUS = "oktan 95+"
 OCTANE_100 = "oktan 100"
 FUEL_COMPANIES = {
     "circlek": {
         "name": "Circle K",
-        "url": "https://www.circlek.dk/",
+        "url": "https://www.circlek.dk/priser",
         "products": {
             OCTANE_95: {"name": "miles95"},
             OCTANE_95_PLUS: {"name": "milesPLUS95"},
             DIESEL: {"name": "miles Diesel B7"},
             DIESEL_PLUS: {"name": "milesPLUS Diesel"},
+            ELECTRIC: {"name": "El Lynlader"},
         },
     },
     "f24": {
@@ -198,6 +200,7 @@ class fuelCompany:
         # Provide the URL and the dictionary with the products
         # Update the dictionary with products with the returned data
         self._products = getattr(self._parser, self._key)(self._url, self._products)
+        _LOGGER.debug("products: %s", self._products)
         # If the Key 'priceType' is present, extract it from the dict, else use DEFAULT_PRICE_TYPE
         self._priceType = self._products.pop("priceType", DEFAULT_PRICE_TYPE)
 
@@ -208,6 +211,7 @@ class fuelCompany:
         return self._products[productKey]["name"]
 
     def getProductPrice(self, productKey):
+        _LOGGER.debug("productDict: %s", self._products[productKey])
         return self._products[productKey]["price"]
 
     def getProductLastUpdate(self, productKey):

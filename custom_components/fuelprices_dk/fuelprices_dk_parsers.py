@@ -86,7 +86,7 @@ class fuelParser:
 
     # CIRCLE K
     def circlek(self, url, products):
-        return self._getDataFromTable(url, products, 1, -1)
+        return self._getDataFromTable(url, products, 1, 2)
 
     # SHELL
     def shell(self, url, products):
@@ -205,18 +205,18 @@ class fuelParser:
         html = self._get_html_soup(r)
 
         """
-		Find all <tr> (rows) in the table
-		Loop through all the products with the Key and a dict as Value (Object)
-			Set found to False
-			Loop through all the Rows
-				If we previously have found a product, scontinue with the next product
-				Find all the <td> (cells)
-				If number of cells is larger than 1
-					Set found true/false whether we have found the product
-					If found
-						Extract, and clean, and add the price to the products dict
-		Return the dict og products
-		"""
+        Find all <tr> (rows) in the table
+        Loop through all the products with the Key and a dict as Value (Object)
+            Set found to False
+            Loop through all the Rows
+                If we previously have found a product, scontinue with the next product
+                Find all the <td> (cells)
+                If number of cells is larger than 1
+                    Set found true/false whether we have found the product
+                    If found
+                        Extract, and clean, and add the price to the products dict
+        Return the dict og products
+        """
         rows = html.find_all("tr")
         for productKey, productDict in products.items():
             found = False

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import asyncio
 import logging
-import time
 
 from homeassistant.const import DEVICE_CLASS_MONETARY, ATTR_ATTRIBUTION
 from .const import (
@@ -33,7 +33,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         # Sleep for 3 seconds
         for company in fuelPrices.getCompanies():
             await hass.async_add_executor_job(company.refreshPrices)
-            time.sleep(3)
+            await asyncio.sleep(3)
 
     # Create a coordinator
     coordinator = DataUpdateCoordinator(
