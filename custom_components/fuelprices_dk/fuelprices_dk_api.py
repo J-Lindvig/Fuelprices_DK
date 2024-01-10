@@ -81,16 +81,16 @@ FUEL_COMPANIES = {
             DIESEL_PLUS: {"name": "GoEasy Diesel Extra", "ProductCode": 24337},
         },
     },
-    "shell": {
-        "name": "Shell",
-        "url": "https://www.shell.dk/customer-service/priser-pa-benzin-og-diesel.html",
-        "products": {
-            OCTANE_95: {"name": "Shell FuelSave Blyfri 95"},
-            OCTANE_100: {"name": "Shell V-Power"},
-            DIESEL: {"name": "Shell FuelSave Diesel"},
-            DIESEL_PLUS: {"name": "Shell V-Power Diesel"},
-        },
-    },
+    # "shell": {
+    #     "name": "Shell",
+    #     "url": "https://www.shell.dk/customer-service/priser-pa-benzin-og-diesel.html",
+    #     "products": {
+    #         OCTANE_95: {"name": "Shell FuelSave Blyfri 95"},
+    #         OCTANE_100: {"name": "Shell V-Power"},
+    #         DIESEL: {"name": "Shell FuelSave Diesel"},
+    #         DIESEL_PLUS: {"name": "Shell V-Power Diesel"},
+    #     },
+    # },
 }
 
 
