@@ -57,7 +57,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     for companyKey in fuelPrices.getCompanyKeys():
         for productKey in fuelPrices.getCompanyProductsKeys(companyKey):
             # Create a instance of the FuelPriceSensor and append it to the list
-            entities.append(FuelPriceSensor(hass, coordinator, companyKey, productKey))
+            entities.append(FuelPriceSensor(
+                hass, coordinator, companyKey, productKey))
     # Add all the sensors to Home Assistant
     async_add_entities(entities)
 
@@ -66,7 +67,8 @@ class FuelPriceSensor(SensorEntity):
     def __init__(self, hass, coordinator, companyKey, productKey) -> None:
         self._hass = hass
         self._coordinator = coordinator
-        self._fuelCompany = hass.data[DOMAIN][CONF_CLIENT].getCompany(companyKey)
+        self._fuelCompany = hass.data[DOMAIN][CONF_CLIENT].getCompany(
+            companyKey)
         self._companyName = self._fuelCompany.getName()
         self._productName = self._fuelCompany.getProductName(productKey)
         self._productKey = productKey
@@ -76,7 +78,8 @@ class FuelPriceSensor(SensorEntity):
         # Some companies put their name into the product, which leads to double names
         # Strip the name and whitespaces
         if self._companyName in self._productName:
-            self._productName = self._productName.replace(self._companyName, "").strip()
+            self._productName = self._productName.replace(
+                self._companyName, "").strip()
 
     @property
     def name(self):
@@ -98,7 +101,8 @@ class FuelPriceSensor(SensorEntity):
         attr["product_name"] = self._productName
         attr["product_type"] = self._productKey
         attr["price_type"] = self._fuelCompany.getPriceType()
-        attr["last_update"] = self._fuelCompany.getProductLastUpdate(self._productKey)
+        attr["last_update"] = self._fuelCompany.getProductLastUpdate(
+            self._productKey)
         attr[ATTR_ATTRIBUTION] = CREDITS
         return attr
 

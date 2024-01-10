@@ -1,4 +1,7 @@
 from __future__ import annotations
+from .const import (
+    PATH,
+)
 
 import logging
 from bs4 import BeautifulSoup as BS
@@ -9,9 +12,6 @@ import subprocess
 import pytz
 
 DK_TZ = pytz.timezone("Europe/Copenhagen")
-from .const import (
-    PATH,
-)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 _LOGGER = logging.getLogger(__name__)
@@ -105,7 +105,8 @@ class fuelParser:
                     continue
                 cells = row.find_all("div", {"role": "gridcell"})
                 if cells:
-                    found = productDict["name"] == self._cleanProductName(cells[0].text)
+                    found = productDict["name"] == self._cleanProductName(
+                        cells[0].text)
                     if found:
                         products[productKey] = self._addPriceToProduct(
                             productDict, cells[1].text
@@ -125,14 +126,16 @@ class fuelParser:
                     continue
                 cells = row.find_all("td")
                 if cells:
-                    found = productDict["name"] == self._cleanProductName(cells[0].text)
+                    found = productDict["name"] == self._cleanProductName(
+                        cells[0].text)
                     if found:
                         priceSegments = cells[2].findAll(
                             "span", style=["text-align:right;", "text-align:left;"]
                         )
                         products[productKey] = self._addPriceToProduct(
                             productDict,
-                            priceSegments[0].text + "." + priceSegments[1].text,
+                            priceSegments[0].text + "." +
+                            priceSegments[1].text,
                         )
         return products
 
@@ -186,7 +189,8 @@ class fuelParser:
                     json_product["PriceInclVATInclTax"]
                 )
                 dt = datetime.now(DK_TZ)
-                products[productKey]["lastUpdate"] = dt.strftime("%d/%m/%Y, %H:%M:%S")
+                products[productKey]["lastUpdate"] = dt.strftime(
+                    "%d/%m/%Y, %H:%M:%S")
             return products
 
     def _get_website(self, url):
@@ -247,11 +251,13 @@ class fuelParser:
 
     def _cleanPrice(self, price):
         price = str(price)  # Typecast to String
-        price = price.replace("Pris inkl. moms: ", "")  # Remove 'Pris inkl. moms: '
+        # Remove 'Pris inkl. moms: '
+        price = price.replace("Pris inkl. moms: ", "")
         price = price.replace(" kr.", "")  # Remove ' kr.'
         price = price.replace(",", ".")  # Replace ',' with '.'
         price = price.strip()  # Remove leading or trailing whitespaces
-        return float("{:.2f}".format(float(price)))  # Return the price with 2 decimals
+        # Return the price with 2 decimals
+        return float("{:.2f}".format(float(price)))
 
     def _download_file(self, url, filename, path):
         r = self._session.get(url, stream=True)

@@ -199,7 +199,8 @@ class fuelCompany:
         # Run the function, from the parser, with the same name as the companys key
         # Provide the URL and the dictionary with the products
         # Update the dictionary with products with the returned data
-        self._products = getattr(self._parser, self._key)(self._url, self._products)
+        self._products = getattr(self._parser, self._key)(
+            self._url, self._products)
         _LOGGER.debug("products: %s", self._products)
         # If the Key 'priceType' is present, extract it from the dict, else use DEFAULT_PRICE_TYPE
         self._priceType = self._products.pop("priceType", DEFAULT_PRICE_TYPE)
