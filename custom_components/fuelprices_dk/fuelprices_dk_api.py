@@ -19,11 +19,11 @@ FUEL_COMPANIES = {
         "name": "Circle K",
         "url": "https://www.circlek.dk/priser",
         "products": {
-            OCTANE_95: {"name": "miles95"},
-            OCTANE_95_PLUS: {"name": "milesPLUS95"},
-            DIESEL: {"name": "miles Diesel B7"},
-            DIESEL_PLUS: {"name": "milesPLUS Diesel"},
-            ELECTRIC: {"name": "El Lynlader"},
+            OCTANE_95: {"name": "miles95."},
+            OCTANE_95_PLUS: {"name": "milesPLUS95."},
+            DIESEL: {"name": "miles Diesel B7."},
+            DIESEL_PLUS: {"name": "milesPLUS Diesel."},
+            ELECTRIC: {"name": "El Lynlader."},
         },
     },
     "f24": {
