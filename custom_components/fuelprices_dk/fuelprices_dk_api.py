@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from .fuelprices_dk_parsers import fuelParser  # Module containing parsers
+from .fuelprices_dk_parsers import FuelParser  # Module containing parsers
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 _LOGGER = logging.getLogger(__name__)
@@ -131,7 +131,7 @@ class fuelprices:
                     FUEL_COMPANIES[companyKey]["name"],
                     FUEL_COMPANIES[companyKey]["url"],
                     FUEL_COMPANIES[companyKey]["products"],
-                    fuelParser(),
+                    FuelParser(),
                 )
 
     # Return a list of unique productKeys

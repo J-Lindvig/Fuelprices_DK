@@ -38,11 +38,13 @@ async def async_setup(hass, config):
     # Load the data using the config
     fuelPrices.loadCompanies(fuelCompanies, fuelTypes)
     # Store the client in the hass data stack
-    hass.data[DOMAIN] = {CONF_CLIENT: fuelPrices, CONF_UPDATE_INTERVAL: updateInterval}
+    hass.data[DOMAIN] = {CONF_CLIENT: fuelPrices,
+                         CONF_UPDATE_INTERVAL: updateInterval}
 
     # Add sensors
     hass.async_create_task(
-        hass.helpers.discovery.async_load_platform(CONF_PLATFORM, DOMAIN, conf, config)
+        hass.helpers.discovery.async_load_platform(
+            CONF_PLATFORM, DOMAIN, conf, config)
     )
 
     # Initialization was successful.
