@@ -35,8 +35,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         fuelPrices = hass.data[DOMAIN][CONF_CLIENT]
         # Loop through the fuelcompanies and call the refresh function
         # Sleep for 3 seconds
-        for company in fuelPrices.getCompanies():
-            await hass.async_add_executor_job(company.refreshPrices)
+        for company in fuelPrices.get_companies():
+            await hass.async_add_executor_job(company.refresh_prices)
             await asyncio.sleep(3)
 
     # Create a coordinator
@@ -54,8 +54,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     # Add the sensors to Home Assistant
     entities = []
     fuelPrices = hass.data[DOMAIN][CONF_CLIENT]
-    for companyKey in fuelPrices.getCompanyKeys():
-        for productKey in fuelPrices.getCompanyProductsKeys(companyKey):
+    for companyKey in fuelPrices.get_company_keys():
+        for productKey in fuelPrices.get_company_products_keys(companyKey):
             # Create a instance of the FuelPriceSensor and append it to the list
             entities.append(FuelPriceSensor(
                 hass, coordinator, companyKey, productKey))
@@ -67,10 +67,10 @@ class FuelPriceSensor(SensorEntity):
     def __init__(self, hass, coordinator, companyKey, productKey) -> None:
         self._hass = hass
         self._coordinator = coordinator
-        self._fuelCompany = hass.data[DOMAIN][CONF_CLIENT].getCompany(
+        self._fuelCompany = hass.data[DOMAIN][CONF_CLIENT].get_company(
             companyKey)
-        self._companyName = self._fuelCompany.getName()
-        self._productName = self._fuelCompany.getProductName(productKey)
+        self._companyName = self._fuelCompany.get_name()
+        self._productName = self._fuelCompany.get_product_name(productKey)
         self._productKey = productKey
         self._icon = "mdi:gas-station"
         self._attr_state_class = SensorStateClass.MEASUREMENT
@@ -91,17 +91,17 @@ class FuelPriceSensor(SensorEntity):
 
     @property
     def state(self) -> float:
-        return float(self._fuelCompany.getProductPrice(self._productKey))
+        return float(self._fuelCompany.get_product_price(self._productKey))
 
     @property
     def extra_state_attributes(self):
         attr = {}
         attr["company_name"] = self._companyName
-        attr["source"] = self._fuelCompany.getURL()
+        attr["source"] = self._fuelCompany.get_url()
         attr["product_name"] = self._productName
         attr["product_type"] = self._productKey
-        attr["price_type"] = self._fuelCompany.getPriceType()
-        attr["last_update"] = self._fuelCompany.getProductLastUpdate(
+        attr["price_type"] = self._fuelCompany.get_price_type()
+        attr["last_update"] = self._fuelCompany.get_product_last_update(
             self._productKey)
         attr[ATTR_ATTRIBUTION] = CREDITS
         return attr

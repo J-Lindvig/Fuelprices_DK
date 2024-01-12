@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 
-from .fuelprices_dk_api import fuelprices
+from .fuelprices_dk_api import FuelPrices
 
 from .const import (
     DOMAIN,
@@ -34,9 +34,9 @@ async def async_setup(hass, config):
     _LOGGER.debug("fuelTypes: " + str(fuelTypes))
 
     # Initialize a instance of the fuelprices API
-    fuelPrices = fuelprices()
+    fuelPrices = FuelPrices()
     # Load the data using the config
-    fuelPrices.loadCompanies(fuelCompanies, fuelTypes)
+    fuelPrices.load_companies(fuelCompanies, fuelTypes)
     # Store the client in the hass data stack
     hass.data[DOMAIN] = {CONF_CLIENT: fuelPrices,
                          CONF_UPDATE_INTERVAL: updateInterval}

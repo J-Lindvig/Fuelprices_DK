@@ -35,6 +35,13 @@ class FuelParser:
     def __init__(self):
         # Initialize a new session for the scrapings
         self._session = requests.Session()
+        self._session.headers.update(
+            {
+                'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                + "AppleWebKit/537.36 (KHTML, like Gecko) "
+                + "Chrome/80.0.3987.149 Safari/537.36"
+            }
+        )
 
     # GO'ON
 
@@ -122,7 +129,7 @@ class FuelParser:
         return self._get_data_from_table(url, products, 1, 2)
 
     # SHELL
-    def shell(self, url, products):
+    def shell(self, url, wanted_products):
         """
         Parses the fuel prices from the Shell website.
 
@@ -137,9 +144,46 @@ class FuelParser:
             SomeException: An exception that may occur during parsing.
 
         """
-        return self._get_data_from_table(url, products, 0, -1)
+
+        # Fetch the website with the prices
+        try:
+            r = self._get_website(url)
+        except requests.exceptions.HTTPError as e:
+            _LOGGER.error("Error fetching Shell website: %s", e)
+            raise e
+
+        # Extract the JSON from the response
+        try:
+            json = r.json()
+
+        except requests.exceptions.JSONDecodeError as e:
+            _LOGGER.error("Error parsing JSON from Shell: %s", e)
+            raise e
+
+        products = []
+        for product in json["results"]["products"]:
+
+            # print(f"{product=}")
+            # print(f"{product['name']=}")
+            # print(f"{product['price_incl_vat']=}")
+
+            products.append({
+                "name": product['name'],
+                "price": product['price_incl_vat'],
+                "lastUpdate": datetime.now(DK_TZ).strftime("%d/%m/%Y, %H:%M:%S")
+            })
+
+        results = {}
+        for k in wanted_products.keys():
+            # print(f"{wanted_products[k]=}")
+            for product in products:
+                if wanted_products[k]["name"] == product["name"]:
+                    results[k] = product
+
+        return results
 
     # OK
+
     def ok(self, url, products):
         """
         Parses the OK website to extract fuel prices for the given products.
@@ -168,6 +212,7 @@ class FuelParser:
                         products[product_key] = self._add_price_to_product(
                             product_dict, cells[1].text
                         )
+        # print(f"{products=}")
         return products
 
     # OIL!
@@ -228,6 +273,7 @@ class FuelParser:
         Returns:
             dict: A dictionary containing the fuel prices for the specified products.
         """
+
         return self._f24_q8(url, products)
 
     # F24
@@ -292,8 +338,9 @@ class FuelParser:
         r = self._session.get(url, timeout=5)
         # _LOGGER.debug("URL: " + url + " [" + str(r.status_code) + "]")
         _LOGGER.debug("URL: %s [%s]", url, r.status_code)
-        if r.status_code != 200:
-            return r.status_code
+        r.raise_for_status()
+        # if r.status_code != 200:
+        #     return r.status_code
         return r
 
     def _get_html_soup(self, r, parser="html.parser"):

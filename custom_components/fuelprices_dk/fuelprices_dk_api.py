@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
+
+import requests
 from .fuelprices_dk_parsers import FuelParser  # Module containing parsers
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -20,9 +22,9 @@ FUEL_COMPANIES = {
         "url": "https://www.circlek.dk/priser",
         "products": {
             OCTANE_95: {"name": "miles95."},
-            OCTANE_95_PLUS: {"name": "milesPLUS95."},
-            DIESEL: {"name": "miles Diesel B7."},
-            DIESEL_PLUS: {"name": "milesPLUS Diesel."},
+            OCTANE_95_PLUS: {"name": "miles+95."},
+            DIESEL: {"name": "miles Diesel."},
+            DIESEL_PLUS: {"name": "miles+ Diesel."},
             ELECTRIC: {"name": "El Lynlader."},
         },
     },
@@ -81,142 +83,250 @@ FUEL_COMPANIES = {
             DIESEL_PLUS: {"name": "GoEasy Diesel Extra", "ProductCode": 24337},
         },
     },
-    # "shell": {
-    #     "name": "Shell",
-    #     "url": "https://www.shell.dk/customer-service/priser-pa-benzin-og-diesel.html",
-    #     "products": {
-    #         OCTANE_95: {"name": "Shell FuelSave Blyfri 95"},
-    #         OCTANE_100: {"name": "Shell V-Power"},
-    #         DIESEL: {"name": "Shell FuelSave Diesel"},
-    #         DIESEL_PLUS: {"name": "Shell V-Power Diesel"},
-    #     },
-    # },
+    "shell": {
+        "name": "Shell",
+        "url": "https://shellservice.dk/wp-json/shell-wp/v2/daily-prices",
+        "products": {
+            OCTANE_95: {"name": "Shell FuelSave 95 oktan"},
+            OCTANE_100: {"name": "Shell V-Power 100 oktan"},
+            DIESEL: {"name": "Shell FuelSave Diesel"},
+            DIESEL_PLUS: {"name": "Shell V-Power Diesel"},
+        },
+    },
 }
 
 
-class fuelprices:
-    def __init__(self):
-        self._fuelCompanies = {}
+class FuelPrices:
+    """Class to manage fuel prices from different companies."""
 
-    def loadCompanies(self, companyKeys, productKeys):
+    def __init__(self):
+        self._fuel_companies = {}
+
+    def load_companies(self, company_keys, product_keys):
+        """Load fuel companies and their products.
+
+        Args:
+            companyKeys (list): List of company keys to load. If empty, load all companies.
+            productKeys (list): List of product keys to load. If empty, load all products.
+        """
+
         # If no companies is specified, use ALL companies
-        if not companyKeys:
-            companyKeys = FUEL_COMPANIES.keys()
+        if not company_keys:
+            company_keys = FUEL_COMPANIES.keys()
 
         # If no product is specified, use ALL products
-        if not productKeys:
-            productKeys = self._getProductKeys()
+        if not product_keys:
+            product_keys = self._get_product_keys()
 
         # Loop through all the companyKeys
-        for companyKey in companyKeys:
-            if companyKey in FUEL_COMPANIES.keys():
+        for company_key in company_keys:
+            if company_key in FUEL_COMPANIES.keys():
                 _LOGGER.debug(
-                    "Adding fuelcompany: " + FUEL_COMPANIES[companyKey]["name"]
+                    "Adding fuelcompany: %s", FUEL_COMPANIES[company_key]["name"]
                 )
 
                 # Loop through all the products and remove the ones NOT specified
-                for productKey in list(FUEL_COMPANIES[companyKey]["products"].keys()):
-                    if not productKey in productKeys:
-                        del FUEL_COMPANIES[companyKey]["products"][productKey]
+                for product_key in list(FUEL_COMPANIES[company_key]["products"].keys()):
+                    if product_key not in product_keys:
+                        del FUEL_COMPANIES[company_key]["products"][product_key]
                     else:
                         _LOGGER.debug(
-                            "Adding product to "
-                            + FUEL_COMPANIES[companyKey]["name"]
-                            + ": "
-                            + FUEL_COMPANIES[companyKey]["products"][productKey]["name"]
+                            "Adding product to %s: %s",
+                            FUEL_COMPANIES[company_key]["name"],
+                            FUEL_COMPANIES[company_key]["products"][product_key]["name"],
                         )
 
-                self._fuelCompanies[companyKey] = fuelCompany(
-                    companyKey,
-                    FUEL_COMPANIES[companyKey]["name"],
-                    FUEL_COMPANIES[companyKey]["url"],
-                    FUEL_COMPANIES[companyKey]["products"],
+                self._fuel_companies[company_key] = FuelCompany(
+                    company_key,
+                    FUEL_COMPANIES[company_key]["name"],
+                    FUEL_COMPANIES[company_key]["url"],
+                    FUEL_COMPANIES[company_key]["products"],
                     FuelParser(),
                 )
 
     # Return a list of unique productKeys
-    def _getProductKeys(self):
+    def _get_product_keys(self):
         # Prepare a empty list
-        productKeys = []
+        product_keys = []
         # Loop through all the companies
         for company in FUEL_COMPANIES.values():
             # Add a list of the companys productKeys to the list
-            productKeys.extend(list(company["products"].keys()))
+            product_keys.extend(list(company["products"].keys()))
         # Typecast the list to a set to remove duplicates
-        productKeys = set(productKeys)
+        product_keys = set(product_keys)
         # Return the set as a list
-        return list(productKeys)
+        return list(product_keys)
 
-    # Refresh prices from all the products from all the companies
     def refresh(self):
-        for company in self.getCompanies():
-            company.refreshPrices()
+        """
+        Refreshes the prices for all companies.
+        """
+        for company in self.get_companies():
+            company.refresh_prices()
 
-    def getCompany(self, companyKey):
-        if self._companyExists(companyKey):
-            return self._fuelCompanies[companyKey]
+    def get_company(self, company_key) -> FuelCompany:
+        """
+        Retrieves the fuel company information based on the provided company key.
 
-    def getCompanyKeys(self):
-        return self._fuelCompanies.keys()
+        Args:
+            company_key (str): The key of the fuel company.
 
-    def getCompanies(self):
-        return self._fuelCompanies.values()
+        Returns:
+            dict: The fuel company information.
 
-    def getCompanyName(self, companyKey):
-        if self._companyExists(companyKey):
-            return self._fuelCompanies[companyKey].getName()
+        Raises:
+            KeyError: If the provided company key does not exist.
+        """
+        if self._company_exists(company_key):
+            return self._fuel_companies[company_key]
 
-    def getCompanyPrices(self, companyKey):
-        if self._companyExists(companyKey):
-            return self._fuelCompanies[companyKey].getPrices()
+        raise KeyError(f"Company key {company_key} does not exist")
 
-    def getCompanyProductsKeys(self, companyKey):
-        if self._companyExists(companyKey):
-            return self._fuelCompanies[companyKey].getProductsKeys()
+    def get_company_keys(self):
+        """
+        Returns the keys of the fuel companies stored in the _fuel_companies dictionary.
 
-    def _companyExists(self, companyKey):
-        return companyKey in self.getCompanyKeys()
+        Returns:
+            list: A list of keys representing the fuel companies.
+        """
+        return self._fuel_companies.keys()
+
+    def get_companies(self):
+        """
+        Returns a list of all fuel companies.
+
+        Returns:
+            list: A list of all fuel companies.
+        """
+        return self._fuel_companies.values()
+
+    def get_company_name(self, company_key):
+        """
+        Get the name of the fuel company based on the company key.
+
+        Args:
+            company_key (str): The key of the fuel company.
+
+        Returns:
+            str: The name of the fuel company.
+
+        Raises:
+            KeyError: If the company key does not exist.
+        """
+        if self._company_exists(company_key):
+            return self._fuel_companies[company_key].get_name()
+
+        raise KeyError(f"Company key {company_key} does not exist")
+
+    # def get_company_prices(self, company_key):
+    #     """
+    #     Get the prices for a specific fuel company.
+
+    #     Args:
+    #         company_key (str): The key of the fuel company.
+
+    #     Returns:
+    #         dict: A dictionary containing the prices for the fuel company.
+
+    #     Raises:
+    #         KeyError: If the company key does not exist.
+    #     """
+    #     if self._company_exists(company_key):
+    #         return self._fuel_companies[company_key].get_prices()
+
+    #     raise KeyError(f"Company key {company_key} does not exist")
+
+    def get_company_products_keys(self, company_key) -> list[str]:
+        """
+        Returns the product keys for a given company.
+
+        Args:
+            company_key (str): The key of the company.
+
+        Returns:
+            list: A list of product keys for the company.
+
+        Raises:
+            KeyError: If the company key does not exist.
+        """
+        if self._company_exists(company_key):
+            return self._fuel_companies[company_key].get_products_keys()
+
+        raise KeyError(f"Company key {company_key} does not exist")
+
+    def _company_exists(self, company_key):
+        return company_key in self.get_company_keys()
 
 
-class fuelCompany:
+class FuelCompany:
+    """
+    Represents a fuel company with its key, name, URL, products, parser, and price type.
+
+    Attributes:
+        _key (str): Key of the company in the dictionary.
+        _name (str): Name of the company.
+        _url (str): URL to the site with prices.
+        _products (dict): Dictionary with products and prices.
+        _parser (obj): Instance of the parser module.
+        _priceType (str): Default type of prices.
+    """
+
     def __init__(self, key, name, url, products, parser):
         self._key = key  # Key of the company in the dict
         self._name = name  # Name of the company
         self._url = url  # URL to site with prices
         self._products = products  # Dictionary with products and prices
         self._parser = parser  # Instance of the parser module
-        self._priceType = DEFAULT_PRICE_TYPE  # Default type of prices
+        self._price_type = DEFAULT_PRICE_TYPE  # Default type of prices
 
-    def getName(self):
+    def get_name(self):
         return self._name
 
-    def getURL(self):
+    def get_url(self):
         return self._url
 
-    # Refresh the companys prices
-    def refreshPrices(self):
-        _LOGGER.debug("Refreshing prices from: " + self._name)
-        # Run the function, from the parser, with the same name as the companys key
-        # Provide the URL and the dictionary with the products
-        # Update the dictionary with products with the returned data
-        self._products = getattr(self._parser, self._key)(
-            self._url, self._products)
-        _LOGGER.debug("products: %s", self._products)
-        # If the Key 'priceType' is present, extract it from the dict, else use DEFAULT_PRICE_TYPE
-        self._priceType = self._products.pop("priceType", DEFAULT_PRICE_TYPE)
+    # Refresh the company's prices
+    def refresh_prices(self):
+        """
+        Refreshes the company's prices by running the function from the parser module
+        with the same name as the company's key. Updates the dictionary with products
+        with the returned data.
+        """
+        try:
+            _LOGGER.debug("Refreshing prices from: %s", self._name)
+            self._products = getattr(self._parser, self._key)(
+                self._url, self._products)
+            _LOGGER.debug("products: %s", self._products)
+            self._price_type = self._products.pop(
+                "priceType", DEFAULT_PRICE_TYPE)
+        except requests.exceptions.HTTPError as e:
+            _LOGGER.error("Error refreshing prices from %s: %s", self._name, e)
+        except requests.exceptions.JSONDecodeError as e:
+            _LOGGER.error(
+                "Error parsing response JSON from %s: %s", self._name, e)
 
-    def getProductsKeys(self):
+    def get_products_keys(self):
         return self._products.keys()
 
-    def getProductName(self, productKey):
-        return self._products[productKey]["name"]
+    def get_product_name(self, product_key):
+        return self._products[product_key]["name"]
 
-    def getProductPrice(self, productKey):
-        _LOGGER.debug("productDict: %s", self._products[productKey])
-        return self._products[productKey]["price"]
+    def get_product_price(self, product_key):
+        """
+        Get the price of a specific product.
 
-    def getProductLastUpdate(self, productKey):
-        return self._products[productKey]["lastUpdate"]
+        Args:
+            product_key (str): The key of the product.
 
-    def getPriceType(self):
-        return self._priceType
+        Returns:
+            float: The price of the product.
+
+        """
+        _LOGGER.debug("productDict: %s", self._products[product_key])
+        return self._products[product_key]["price"]
+
+    def get_product_last_update(self, product_key):
+        return self._products[product_key]["lastUpdate"]
+
+    def get_price_type(self):
+        return self._price_type
