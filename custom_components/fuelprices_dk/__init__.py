@@ -26,20 +26,22 @@ async def async_setup(hass, config):
         return True
 
     # Extract companies and fuueltypes from the config, defult to empty list
-    fuelCompanies = conf.get(CONF_FUELCOMPANIES, [])
-    fuelTypes = conf.get(CONF_FUELTYPES, [])
-    updateInterval = conf.get(CONF_UPDATE_INTERVAL, UPDATE_INTERVAL)
+    fuel_companies = conf.get(CONF_FUELCOMPANIES, [])
+    fuel_types = conf.get(CONF_FUELTYPES, [])
+    update_interval = conf.get(CONF_UPDATE_INTERVAL, UPDATE_INTERVAL)
 
-    _LOGGER.debug("fuelCompanies: " + str(fuelCompanies))
-    _LOGGER.debug("fuelTypes: " + str(fuelTypes))
+    _LOGGER.debug("fuelCompanies: %s", fuel_companies)
+    _LOGGER.debug("fuelTypes: %s", fuel_types)
 
     # Initialize a instance of the fuelprices API
-    fuelPrices = FuelPrices()
+    fuel_prices = FuelPrices()
     # Load the data using the config
-    fuelPrices.load_companies(fuelCompanies, fuelTypes)
+    fuel_prices.load_companies(fuel_companies, fuel_types)
     # Store the client in the hass data stack
-    hass.data[DOMAIN] = {CONF_CLIENT: fuelPrices,
-                         CONF_UPDATE_INTERVAL: updateInterval}
+    hass.data[DOMAIN] = {
+        CONF_CLIENT: fuel_prices,
+        CONF_UPDATE_INTERVAL: update_interval
+    }
 
     # Add sensors
     hass.async_create_task(
