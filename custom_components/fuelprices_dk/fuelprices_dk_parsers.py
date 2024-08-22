@@ -127,12 +127,9 @@ class fuelParser:
                 if cells:
                     found = productDict["name"] == self._cleanProductName(cells[0].text)
                     if found:
-                        priceSegments = cells[2].findAll(
-                            "span", style=["text-align:right;", "text-align:left;"]
-                        )
                         products[productKey] = self._addPriceToProduct(
                             productDict,
-                            priceSegments[0].text + "." + priceSegments[1].text,
+                            cells[2].text,
                         )
         return products
 

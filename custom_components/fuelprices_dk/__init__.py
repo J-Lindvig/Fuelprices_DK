@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 
+from homeassistant.helpers.discovery import async_load_platform
 from .fuelprices_dk_api import fuelprices
 
 from .const import (
@@ -18,7 +19,7 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup(hass, config):
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     # Get the configuration
     conf = config.get(DOMAIN)
     # If no config, abort
@@ -41,9 +42,10 @@ async def async_setup(hass, config):
     hass.data[DOMAIN] = {CONF_CLIENT: fuelPrices, CONF_UPDATE_INTERVAL: updateInterval}
 
     # Add sensors
-    hass.async_create_task(
-        hass.helpers.discovery.async_load_platform(CONF_PLATFORM, DOMAIN, conf, config)
-    )
+    await async_load_platform(hass, CONF_PLATFORM, const.DOMAIN, conf, config)
+    # hass.async_create_task(
+    #     hass.helpers.discovery.async_load_platform(CONF_PLATFORM, DOMAIN, conf, config)
+    # )
 
     # Initialization was successful.
     return True
