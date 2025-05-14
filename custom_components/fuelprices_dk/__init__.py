@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from homeassistant.helpers.discovery import async_load_platform
 import logging
 
 from .fuelprices_dk_api import fuelprices
@@ -42,7 +42,7 @@ async def async_setup(hass, config):
 
     # Add sensors
     hass.async_create_task(
-        hass.helpers.discovery.async_load_platform(CONF_PLATFORM, DOMAIN, conf, config)
+        async_load_platform(CONF_PLATFORM, DOMAIN, conf, config)
     )
 
     # Initialization was successful.
