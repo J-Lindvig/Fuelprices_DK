@@ -42,7 +42,7 @@ async def async_setup(hass, config):
 
     # Add sensors
     hass.async_create_task(
-        async_load_platform(CONF_PLATFORM, DOMAIN, conf, config)
+        async_load_platform(hass, CONF_PLATFORM, DOMAIN, conf, config)
     )
 
     # Initialization was successful.
